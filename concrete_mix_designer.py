@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 
 # IS 456:2000 Table 5 | "Exposure condition": [Minimum cement content in kg/m^3, Maximum water to cement ratio] 
 is456_t5 = { "Mild": [300, 0.55], "Moderate": [300, 0.50], "Severe": [320, 0.45], "Very severe": [340, 0.45], "Extreme": [360, 0.40] }
@@ -81,11 +82,11 @@ def fly_cement_content_calculation(exposure, wcr, wc):
             min_cc = v[0]
     
     cement_content = wc/wcr
-    temp = cement_content
+    temp1 = cement_content
 
     if cement_content < min_cc:
         cement_content = min_cc
-        temp = cement_content
+        temp1 = cement_content
 
     cement_content *= 1.10
 
@@ -93,9 +94,26 @@ def fly_cement_content_calculation(exposure, wcr, wc):
 
     flyash_content = cement_content * 0.3
 
-    cement_content -= flyash_content
+    temp2 = cement_content
 
-    cement_saved = temp - cement_content
+    temp2 -= flyash_content
+
+    if temp2 < 270:
+        i = 0.25
+        while True and i > 0:
+            temp2 = cement_content
+            flyash_content = temp2 * i
+            temp2 -= flyash_content
+            i -= 0.05
+            if temp2 >= 270:
+                print("\nPercentage of Fly Ash is {}%\n".format(int((i+0.05)*100)))
+                break
+            elif i < 0:
+                sys.exit("Mix is not possible!!(Cement < 270)")
+    
+    cement_content = temp2
+
+    cement_saved = temp1 - cement_content
 
     return cement_content, flyash_content, cement_saved, new_water_cement_ratio
 
