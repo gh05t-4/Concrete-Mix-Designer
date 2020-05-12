@@ -75,7 +75,7 @@ def cement_content_calculation(exposure, wcr, wc):
     return cement_content
 
 def fly_cement_content_calculation(exposure, wcr, wc):
-    """Calculation Of Cement Content"""
+    """Calculation Of Cement and Fly Ash Content"""
     exp = exposure.capitalize()
     for x, v in is456_t5.items():
         if x == exp:
@@ -118,33 +118,6 @@ def fly_cement_content_calculation(exposure, wcr, wc):
     return cement_content, flyash_content, cement_saved, new_water_cement_ratio
 
 def vol_of_CAnFA_calculation(zone, soa, wcr, pumping):
-    """Proportion Of Volume Of Coarse Aggregate And Fine Aggregate Content"""
-    if zone == "Zone 4":
-        i = 0
-    elif zone == "Zone 3":
-        i = 1
-    elif zone == "Zone 2":
-        i = 2
-    elif zone == "Zone 1":
-        i = 3
-    
-    for x, v in is10262_t3.items():
-        if x == soa:
-            vol_CA = v[i]
-    
-    if wcr > 0.5:
-        vol_CA -= 0.01*((wcr - 0.5)/0.05)
-    else:
-        vol_CA += 0.01*((0.5 - wcr)/0.05)
-
-    if pumping == True:
-        vol_CA *= 0.9
-
-    vol_FA = 1 - vol_CA
-
-    return vol_CA, vol_FA
-
-def fly_vol_of_CAnFA_calculation(zone, soa, wcr, pumping):
     """Proportion Of Volume Of Coarse Aggregate And Fine Aggregate Content"""
     if zone == "Zone 4":
         i = 0
@@ -359,7 +332,7 @@ else:
     CEMENT_CONTENT, FLYASH_CONTENT, CEMENT_SAVED, NEW_WATER_CEMENT_RATIO = fly_cement_content_calculation(EXPOSURE_CONDITION, WATER_CEMENT_RATIO, WATER_CONTENT)
     print("Cement saved while using flyash is {:.2f} kg/m^3".format(CEMENT_SAVED))
 
-    VOL_CA, VOL_FA = fly_vol_of_CAnFA_calculation(zone, SIZE_OF_AGGREGATE, WATER_CEMENT_RATIO, pumping)
+    VOL_CA, VOL_FA = vol_of_CAnFA_calculation(zone, SIZE_OF_AGGREGATE, WATER_CEMENT_RATIO, pumping)
     print("\nProportion of Volume of COARSE AGGREGATE is {:.2f} and of FINE AGGREGATE is {:.2f}".format(VOL_CA, VOL_FA))
 
     MASS_CHEM_AD, MASS_CA, MASS_FA = fly_mix_calculation(CEMENT_CONTENT, SP_CEMENT, WATER_CONTENT, VOL_CA, VOL_FA, SP_CA, SP_FA, SP_ADMIX, SP_CHEMAD, FLYASH_CONTENT)
