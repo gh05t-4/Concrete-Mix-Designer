@@ -298,13 +298,40 @@ elif ZONE_OF_FA == '3':
 elif ZONE_OF_FA == '4':
     zone = "Zone 4"
 
+# Checking whether to Surface moisturein aggregates is present or not
+CA_SURFACE_MOISTURE = input("\nIs surface moisture present in the COARSE aggregates? (yes or no): ")
+CA_SURF_MOISTURE = 0.0
+while True:
+    if CA_SURFACE_MOISTURE.lower() == 'yes':
+        CA_SURF_MOISTURE = float(input("Enter the surface moisture of COARSE aggregates: "))
+        break
+    elif CA_SURFACE_MOISTURE.lower() == 'no':
+        break
+    else:
+        print("Invalid Input!!")
+    CA_SURFACE_MOISTURE = input("Is surface moisture present in the COARSE aggregates? (yes or no): ")
+
+FA_SURFACE_MOISTURE = input("\nIs surface moisture present in the FINE aggregates? (yes or no): ")
+FA_SURF_MOISTURE = 0.0
+while True:
+    if FA_SURFACE_MOISTURE.lower() == 'yes':
+        FA_SURF_MOISTURE = float(input("Enter the surface moisture of FINE aggregates: "))
+        break
+    elif FA_SURFACE_MOISTURE.lower() == 'no':
+        break
+    else:
+        print("Invalid Input!!")
+    FA_SURFACE_MOISTURE = input("Is surface moisture present in the FINE aggregates? (yes or no): ")
+
 # Printing the results
+print("\n################################################################################")
 TARGET_STRENGTH = target_strength_calculation(GRADE)
 print("\nTarget strength = {} N/mm^2".format(TARGET_STRENGTH))
 
 WATER_CEMENT_RATIO = water_cement_ratio_calculation(EXPOSURE_CONDITION)
 
 WATER_CONTENT = water_content_calculation(WORKABILITY, SIZE_OF_AGGREGATE, toa, chem_ad)
+
 if TYPE_OF_MINERAL_ADMIXTURE == '':
     CEMENT_CONTENT = cement_content_calculation(EXPOSURE_CONDITION, WATER_CEMENT_RATIO, WATER_CONTENT)
 
@@ -322,12 +349,6 @@ if TYPE_OF_MINERAL_ADMIXTURE == '':
             5. Chemical admixture   =   {:.2f} kg/m^3
             6. Water-cement ratio   =   {}
     """.format(CEMENT_CONTENT, WATER_CONTENT, MASS_FA, MASS_CA, MASS_CHEM_AD, WATER_CEMENT_RATIO))
-
-    print("\nCorrection for Water absorption of aggregate:")
-    print("""
-            1. Coarse aggregate = {:.2f} lit
-            2. Fine aggregate   = {:.2f} lit
-    """.format((MASS_CA * WATER_ABSORPTION_CA * 0.01), (MASS_FA * WATER_ABSORPTION_FA * 0.01)))
 else:
     CEMENT_CONTENT, FLYASH_CONTENT, CEMENT_SAVED, NEW_WATER_CEMENT_RATIO = fly_cement_content_calculation(EXPOSURE_CONDITION, WATER_CEMENT_RATIO, WATER_CONTENT)
     print("Cement saved while using flyash is {:.2f} kg/m^3".format(CEMENT_SAVED))
@@ -348,8 +369,21 @@ else:
             7. Water-cement ratio   =   {:.3f}
     """.format(CEMENT_CONTENT, FLYASH_CONTENT, WATER_CONTENT, MASS_FA, MASS_CA, MASS_CHEM_AD, NEW_WATER_CEMENT_RATIO))
 
-    print("\nCorrection for Water absorption of aggregate:")
+print("\nCorrection for Water absorption of aggregate:")
+CA_WA = MASS_CA * WATER_ABSORPTION_CA * 0.01
+FA_WA = MASS_FA * WATER_ABSORPTION_FA * 0.01
+print("""
+            1. Coarse aggregate = {:.2f} lit
+            2. Fine aggregate   = {:.2f} lit
+""".format(CA_WA, FA_WA))
+
+CA_SM = MASS_CA * CA_SURF_MOISTURE * 0.01
+FA_SM = MASS_FA * FA_SURF_MOISTURE * 0.01
+if CA_SURF_MOISTURE != 0.0 or FA_SURF_MOISTURE != 0.0:
+    print("\nCorrection for Surface Moisture of aggregate:")
     print("""
             1. Coarse aggregate = {:.2f} lit
             2. Fine aggregate   = {:.2f} lit
-    """.format((MASS_CA * WATER_ABSORPTION_CA * 0.01), (MASS_FA * WATER_ABSORPTION_FA * 0.01)))
+    """.format(CA_SM, FA_SM))
+print("FREE WATER after final correction is {:.2f} lit\n".format((WATER_CONTENT + CA_WA + FA_WA - CA_SM - FA_SM)))
+print("################################################################################\n")
